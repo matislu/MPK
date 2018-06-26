@@ -1,0 +1,108 @@
+extends layout
+
+
+block content
+  nav.navbar.navbar-default
+    .container-fluid
+      ul.nav.navbar-nav.navbar-left
+        li
+          a(href='/') 
+            i.fa.fa-home(aria-hidden='true')  Strona główna
+      ul.nav.navbar-nav.navbar-right
+        li.dropdown
+         a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-haspopup='true', aria-expanded='false')
+          i.fa.fa-cogs(aria-hidden='true')  Konto
+            span.caret
+          ul.dropdown-menu
+            if login
+              li
+                a(href= '/user/profile') 
+                  i.fa.fa-user(aria-hidden='true')    Profil
+              li
+                a(href='/user/logout') 
+                  i.fa.fa-sign-out(aria-hidden='true')  Wyloguj
+            else
+              li
+                a(href='/user/signup') 
+                  i.fa.fa-registered(aria-hidden='true')  Rejestracja
+              li
+                a(href='/user/signin') 
+                  i.fa.fa-sign-in(aria-hidden='true')  Logowanie
+
+  h1= title
+  p Please enter start point
+
+  select.start_destination
+    each stop, i in stops
+      option(value=stop.id) #{stop.name}
+      
+  p Please enter end point
+  
+  select.end_destination
+    each stop, i in stops
+      option(value=stop.id) #{stop.name}
+
+  script(type='text/javascript' src='javascripts/jquery-min.js')
+  script.
+    var something = function() {
+    var startDestinationId = $('.start_destination :selected').val();
+    var endDestinationId = $('.end_destination :selected').val();
+    var txt = $("input").val();
+    $.post("/routes/for", {startDestinationId: startDestinationId, endDestinationId: endDestinationId}, function(result){
+      let stops = !{JSON.stringify(stops)}
+      for (var i = 0; i < window.markers.length; i++) {
+        window.markers[i].setMap(null);
+      }
+
+      let path = JSON.parse(result);
+      console.log(path);
+
+      for(var i = 0; i < path.length; i++){
+        for (var j = 0; j < stops.length; j++) { 
+          console.log(path[i] + ' ' + stops[j].id);
+
+          if(path[i] == stops[j].id){
+            console.log(stops[j].latitude + ' ' + stops[j].longitude);
+            console.log('dodano marker');
+
+            let marker = new google.maps.Marker({
+              position: {lat: stops[j].latitude, lng: stops[j].longitude},
+            });
+            marker.setMap(window.googleMap);
+            window.markers.push(marker);
+          }
+        }        
+      }
+
+      console.log(path); 
+    });
+    }
+    
+  p
+  
+  button(onclick='something()') Submit
+  
+  
+  p.destinations
+  
+  #map
+  script.
+    function initMap() {
+    window.markers  = [];
+    var uluru = {lat: 50.08195194444444, lng: 19.88254722222222}; 
+    var uluru2 = {lat: 50.07098472222222, lng: 19.944955555555556};
+    window.googleMap = new google.maps.Map(document.getElementById('map'), {
+    zoom: 11,
+    center: uluru
+    });
+    window.markers.push(new google.maps.Marker({
+    position: uluru,
+    map: googleMap
+    }));
+    window.markers.push(new google.maps.Marker({
+    position: uluru2,
+    map: googleMap
+    }));
+    }
+  script(async='', defer='', src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD9oETNK2y2YbHs2i8Wh9ZeyDqKQYTBISo&callback=initMap")
+

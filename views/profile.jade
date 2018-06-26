@@ -1,0 +1,32 @@
+extends layout
+
+block content
+
+  nav.navbar.navbar-default
+    .container-fluid
+      ul.nav.navbar-nav.navbar-left
+        li
+          a(href='/') 
+            i.fa.fa-home(aria-hidden='true')  Strona główna
+      ul.nav.navbar-nav.navbar-right
+        li.dropdown
+         a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-haspopup='true', aria-expanded='false')
+            i.fa.fa-cogs(aria-hidden='true')  Konto
+            span.caret
+          ul.dropdown-menu
+            li
+              a(href='/user/logout') 
+                i.fa.fa-sign-out(aria-hidden='true')  Wyloguj
+              
+  h1= title
+
+  p Ulubione trasy:
+  p
+  p Ustaw domyślny przystanek początkowy:
+
+  select.start_destination
+    each stop, i in stops
+      option(value=stop) #{stop.name}
+
+  p
+  p Historia tras:
